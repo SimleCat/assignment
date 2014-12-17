@@ -1,0 +1,5 @@
+The program asks 
+order specified below. 
+enter erroneous input 
+part, an invalid move
+order specified below. 

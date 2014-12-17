@@ -1,0 +1,6 @@
+This project asks
+Othello that is
+computer. There are
+This project asks
+The program asks 
+order specified below. 

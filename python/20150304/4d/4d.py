@@ -11,17 +11,17 @@ f = open(FILE_PATH)
 msg_list = []
 items_len = []
 for line in f:
-	print line,
+	print (line, end="")
 	msg_list.append(line.strip().split(','))
 f.close()
 
 while True:
-	name = raw_input("\nLook for: ")
+	name = input("\nLook for: ")
 	if not name:
 		break
 	ret = find(msg_list, name)
 	if ret:
 		for data in ret:
-			print '\t'.join(data)
+			print ('\t'.join(data))
 	else:
-		print "%s not found" % name
+		print ("%s not found" % name)

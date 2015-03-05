@@ -15,12 +15,12 @@ for line in f:
 f.close()
 
 while True:
-	name = raw_input("\nLook for: ")
+	name = input("\nLook for: ")
 	if not name:
 		break
 	ret = find(msg_list, name)
 	if ret:
 		for data in ret:
-			print '\t'.join(data)
+			print ('\t'.join(data))
 	else:
-		print "%s not found" % name
+		print ("%s not found" % name)

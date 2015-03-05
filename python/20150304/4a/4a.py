@@ -5,4 +5,4 @@ planets_list = f.readlines()
 f.close()
 
 for line in planets_list:
-	print line,
+	print (line,end="")

@@ -17,6 +17,6 @@ f.close()
 # 	print "%s\t %d million km from Sun" % (data[0], data[1])
 
 for data in planets_list:
-	print "%s\t %d million km = %d million miles from Sun, on average" %\
-		(data[0], data[1], km_to_mi(data[1]))
+	print ("%s\t %d million km = %d million miles from Sun, on average" %\
+		(data[0], data[1], km_to_mi(data[1])))
 

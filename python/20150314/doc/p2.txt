@@ -1,0 +1,21 @@
+We received some questions about project 2 regarding the skeleton code.
+It seems like the skeleton code does not work as expected sometimes for some students.
+This may have to do with the following reasons:
+- HTTP 1.0/1.1 handling on the Web-servers being tested.
+- Requests sent to the Web-server are not correctly constructed.
+- Different web browser has different behaviors.
+- Javascript can also be the reason causing unexpected behaviors.
+
+As a result, we allow students to state in their documentation:
+- The website they use for testing.
+- The web browser they use for testing.
+- Describe limitations of their programs, and any unexpected behavior may occur.
+As long as the limitations are not significant, no marks will be deducted.
+However, if you do not specify the limitations and/or unexpected behaviors of your programs, and when they occur, marks will be deducted.
+For example, if your proxy server keeps crashing, and you do not explain why, marks will be deducted.
+On the other hand, if you explain why (as accurate as possible), only a small amount of marks will be deducted due to its significance.
+
+Your programs will be tested using the website stated in your documentation with the same format described in the project description.
+Unless someone can confirm Safari is installed on the computers in CSIL, please do not use Safari.
+
+P.S. Make sure to delete your cache when you test your programs; otherwise, you will always get the same results.

@@ -1,59 +1,91 @@
 from socket import * 
 import sys
+import os
 
-BUFSIZ = 2048
+HOST = ''
+PORT = 8888
+BUFSIZ = 1024
 
 if len(sys.argv) <= 1: 
 	print 'Usage : "python ProxyServer.py server_ip"\n[server_ip : It is the IP Address Of Proxy Server' 
 	sys.exit(2) 
 # Create a server socket, bind it to a port and start listening 
 tcpSerSock = socket(AF_INET, SOCK_STREAM) 
-# Fill in start. 
-tcpSerSock.bind((sys.argv[1], int(sys.argv[2])))
-tcpSerSock.listen(10)
+# Fill in start.
+HOST = sys.argv[1]
+if len(sys.argv) == 3:
+	PORT = int(sys.argv[2])
+tcpSerSock.bind((HOST, PORT))
+tcpSerSock.listen(1)
+hostn_pre = ''
 # Fill in end. 
 while 1: 
 	# Strat receiving data from the client 
-	print 'Ready to serve...' 
+	print '\nReady to serve...' 
 	tcpCliSock, addr = tcpSerSock.accept() 
 	print 'Received a connection from:', addr 
 	message = tcpCliSock.recv(BUFSIZ)# Fill in start. # Fill in end.
 	if not message.strip():
+		tcpCliSock.close()
 		continue
-	#print "tcpCliSock message start"
 	print message
-	#print "tcpCliSock message end" 
 	# Extract the filename from the given message 
 	print message.split()[1] 
 	filename = message.split()[1].partition("/")[2] 
 	print filename 
-	fileExist = "false" 
-	filetouse = "/" + filename 
-	print filetouse 
+	fileExist = False
+	# filetouse = "/" + filename 
+	# print filetouse 
 	try: 
 		# Check wether the file exist in the cache 
-		f = open(filetouse[1:], "r") 
+		# f = open(filetouse[1:], "rb")
+
+		hostn = filename.replace("www.","",1)
+		hostn = hostn.split('/')[0]
+		if hostn == "favicon.ico":
+			hostn = hostn_pre
+			filename = "www."+hostn+"/favicon.ico"
+		if hostn == "js":
+			hostn = hostn_pre
+		print "hostn:", hostn
+		hostn_pre = hostn
+		tmpList = filename.split('/')
+		tmpDir = ''
+		if len(tmpList) == 1 or not tmpList[1]:
+			tmpDir = tmpList[0]
+			filename = tmpList[0] + "/index.html"
+		else:
+			tmpDir = '/'.join(tmpList[:-1])
+		print "dir:", tmpDir
+		print "filename:", filename
+		f = open(filename, "r")
+		print "open %s sucess" % filename
 		outputdata = f.readlines()
 		f.close()
-		fileExist = "true" 
+		fileExist = True
 		# ProxyServer finds a cache hit and generates a response message 
 		tcpCliSock.send("HTTP/1.0 200 OK\r\n") 
 		tcpCliSock.send("Content-Type:text/html\r\n") 
 		# Fill in start. 
-		for line in outputdata:
-			tcpCliSock.send(line);
+		if len(outputdata) == 0 or not ''.join(outputdata):
+			raise IOError('Not Found!')
+		else:
+			for line in outputdata:
+				tcpCliSock.send(line)
+				print line,
 		# Fill in end.
-		print 'Read from cache' 
+			print '\nRead from cache' 
 	# Error handling for file not found in cache 
 	except IOError: 
-		if fileExist == "false": 
+		if fileExist == False: 
 			# Create a socket on the proxyserver 
 			c = socket(AF_INET, SOCK_STREAM)# Fill in start. # Fill in end.
-			hostn = filename.replace("www.","",1)
-			print hostn 
+			# hostn = filename.replace("www.","",1)
+			# print hostn 
 			try: 
 				# Connect to the socket to port 80 
 				# Fill in start. 
+
 				c.connect((hostn, 80))
 				# Fill in end.
 				# Create a temporary file on this socket and ask port 80 for the file requested by the client 
@@ -62,30 +94,46 @@ while 1:
 				# Read the response into buffer 
 				# Fill in start. 
 				data = fileobj.readlines()
-				print data
+				fileobj.close()
+				# print data
 				# Fill in end.
 				# Create a new file in the cache for the requested file. 
 				# Also send the response in the buffer to client socket and the corresponding file in the cache 
+				if not os.path.exists(tmpDir):
+					os.makedirs(tmpDir)
 				tmpFile = open("./" + filename,"wb")
 				# Fill in start. 
 				tcpCliSock.send("HTTP/1.0 200 OK\r\n") 
 				tcpCliSock.send("Content-Type:text/html\r\n") 
+				isData = False
 				for line in data:
-					tmpFile.write(line)
-					tcpCliSock.send(line);
+					print line,
+					if not isData:
+						if not line.strip():
+							print "start save"
+							isData = True
+							continue
+					if isData:
+						tmpFile.write(line)
+						tcpCliSock.send(line)
 				tmpFile.close()
 				# Fill in end.
-			except: 
+			except Exception, e: 
 				print "Illegal request" 
+				print e
 		else: 
 			# HTTP response message for file not found 
 			# Fill in start. 
+			print "Not Found"
+			tcpCliSock.send("<html><h1>404 Not Found!</h1></html>")
 			# Fill in end.
-			print "HTTP response message for file not found" 
 	# Close the client and the server sockets 
 	tcpCliSock.close() 
 # Fill in start. 
-
+tcpSerSock.close()
 print "End!"
+
+
+
 
 # Fill in end. 

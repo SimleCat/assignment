@@ -5,6 +5,7 @@ import os
 HOST = ''
 PORT = 8888
 BUFSIZ = 1024
+DNS = ["com", "net", "org", "biz", "cc", "tv", "name", "me", "info", "us", "cn", "jp"]
 
 if len(sys.argv) <= 1: 
 	print 'Usage : "python ProxyServer.py server_ip"\n[server_ip : It is the IP Address Of Proxy Server' 
@@ -16,7 +17,7 @@ HOST = sys.argv[1]
 if len(sys.argv) == 3:
 	PORT = int(sys.argv[2])
 tcpSerSock.bind((HOST, PORT))
-tcpSerSock.listen(1)
+tcpSerSock.listen(5)
 hostn_pre = ''
 # Fill in end. 
 while 1: 
@@ -42,11 +43,13 @@ while 1:
 
 		hostn = filename.replace("www.","",1)
 		hostn = hostn.split('/')[0]
-		if hostn == "favicon.ico":
+		print "hostn.split('.'):", hostn.split('.')
+		if len(hostn.split('.')) > 1 and hostn.split('.')[-1] in DNS:
+			pass
+		else:
+			filename = "www."+hostn_pre+"/"+filename
 			hostn = hostn_pre
-			filename = "www."+hostn+"/favicon.ico"
-		if hostn == "js":
-			hostn = hostn_pre
+
 		print "hostn:", hostn
 		hostn_pre = hostn
 		tmpList = filename.split('/')
@@ -59,15 +62,17 @@ while 1:
 		print "dir:", tmpDir
 		print "filename:", filename
 		f = open(filename, "r")
+
 		print "open %s sucess" % filename
 		outputdata = f.readlines()
 		f.close()
 		fileExist = True
 		# ProxyServer finds a cache hit and generates a response message 
 		tcpCliSock.send("HTTP/1.0 200 OK\r\n") 
-		tcpCliSock.send("Content-Type:text/html\r\n") 
+		tcpCliSock.send("Content-Type:text/html\r\n")
+		tcpCliSock.send("\r\n")
 		# Fill in start. 
-		if len(outputdata) == 0 or not ''.join(outputdata):
+		if len(outputdata) == 0:
 			raise IOError('Not Found!')
 		else:
 			for line in outputdata:
@@ -104,15 +109,15 @@ while 1:
 				tmpFile = open("./" + filename,"wb")
 				# Fill in start. 
 				tcpCliSock.send("HTTP/1.0 200 OK\r\n") 
-				tcpCliSock.send("Content-Type:text/html\r\n") 
+				tcpCliSock.send("Content-Type:text/html\r\n")
+				tcpCliSock.send("\r\n")
 				isData = False
 				for line in data:
 					print line,
-					if not isData:
-						if not line.strip():
-							print "start save"
-							isData = True
-							continue
+					if not isData and not line.strip():
+						print "start save"
+						isData = True
+						continue
 					if isData:
 						tmpFile.write(line)
 						tcpCliSock.send(line)
@@ -132,8 +137,4 @@ while 1:
 # Fill in start. 
 tcpSerSock.close()
 print "End!"
-
-
-
-
 # Fill in end. 

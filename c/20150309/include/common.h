@@ -3,10 +3,13 @@
 
 #include <time.h>
 
-#define NAME_SIZE			50
-#define ADDRESS_SIZE		100
-#define PHONR_SIZE			20
-#define MAX_ACCOUNT_NUM		100
+#define NAME_SIZE				50
+#define ADDRESS_SIZE			100
+#define PHONR_SIZE				20
+#define MAX_ACCOUNT_NUM			99
+#define MAX_AMOUNT_OF_DEPOSIT	99999999
+#define MAX_AMOUNT_OF_LOAN		999999
+#define MAX_LOAN_TIME			1095
 /*
  * 
  */
@@ -30,8 +33,10 @@ typedef short				s16;
 #define TYPE_ID 			1
 #define TYPE_DRIVING		2
 
-
-#ifdef GLOBAL_VARIABLES_HERE
+/*
+ * 全局变量
+ */
+#ifdef GLOBAL_VARIABLES_HERE	//在GLOBAL_VARIABLES_HERE define处，定义变量，其他地方只声明。
 const char *customer_state[] = {"blocked", "working"};
 const char *customer_type[] = {"passport", "ID", "Driving license"};
 const char *account_state[] = {"blocked", "inactive", "active"};

@@ -4,8 +4,13 @@
 #include "common.h"
 #include "list.h"
 #include "file.h"
+#include "view.h"
 
 int main(){
+	printf("u64 size: %d\n", sizeof(u64));
+	printf("u32 size: %d\n", sizeof(u32));
+	printf("u16 size: %d\n", sizeof(u16));
+
 	PCUSTOMER_HEAD head = (PCUSTOMER_HEAD) Create_List(LIST_CUSTOMER_HEAD);
 	PCUSTOMER_NODE customer = (PCUSTOMER_NODE) Create_List(LIST_CUSTOMER);
 
@@ -89,6 +94,10 @@ int main(){
 	head = (PCUSTOMER_HEAD) Create_List(LIST_CUSTOMER_HEAD);
 	ReadFromFile(head);
 	print_customers(head->customers);
+	
+
+	view_main(head);
+
 	free_all(head);
 
 	return 0;

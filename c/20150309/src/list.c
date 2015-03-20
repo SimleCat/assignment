@@ -84,11 +84,14 @@ BOOL InsertFromHead_Transfer(PACCOUNT_NODE account, PTRANSFER_NODE node){
 	return TRUE;
 }
 
-void print_loan(PLOAN_NODE node){
+void print_loan(PLOAN_NODE node, BOOL title){
 	struct tm *p;
 	if (NULL == node){
 		printf("NULL\n");
 		return;
+	}
+	if (title){
+		printf("LENGTH(DAY), AMOUNTS, INTERESTS, START_DATE, END_DATE\n");
 	}
 	printf("%ld, ", node->info.len_day);
 	printf("%.2f, ", node->info.amounts);
@@ -103,19 +106,22 @@ void print_loans(PLOAN_NODE node){
 		printf("NULL\n");
 		return;
 	}
-	printf("length(day), amounts, interests, start_date, end_date\n");
+	printf("LENGTH(DAY), AMOUNTS, INTERESTS, START_DATE, END_DATE\n");
 	while (NULL != node){
-		print_loan(node);
+		print_loan(node, FALSE);
 		node = node->next;
 	}
 }
 
 
-void print_record(PRECORD_NODE node){
+void print_record(PRECORD_NODE node, BOOL title){
 	struct tm *p;	
 	if (NULL == node){
 		printf("NULL\n");
 		return;
+	}
+	if (title){
+		printf("TYPE, DDATE, SUM, TYP_OF_ACCESS\n");
 	}
 	printf("%s, ", record_type[node->info.type]);
 	p = gmtime(&(node->info.date));
@@ -128,21 +134,24 @@ void print_records(PRECORD_NODE node){
 		printf("NULL\n");
 		return;
 	}
-	printf("Type, Date, Sum, Type of access\n");
+	printf("TYPE, DATE, SUM, TYP_OF_ACCESS\n");
 	while (NULL != node){
-		print_record(node);
+		print_record(node, FALSE);
 		node = node->next;
 	}
 }
 
-void print_transfer(PTRANSFER_NODE node){
+void print_transfer(PTRANSFER_NODE node, BOOL title){
 	struct tm *p;	
 	if (NULL == node){
 		printf("NULL\n");
 		return;
 	}
-	printf("%ld, ", node->info.from_account);
-	printf("%ld, ", node->info.to_account);
+	if (title){
+		printf("FROM_ACCOUNT, TO_ACCOUNT, SETTING_DATE, STARTING_DATE, ENDING_DATE\n");
+	}
+	printf("%llu, ", node->info.from_account);
+	printf("%llu, ", node->info.to_account);
 	printf("%d, ", node->info.set_date);
 	p = gmtime(&(node->info.start_date));
 	printf("%d/%d/%d, ", (1900+p->tm_year), (1+p->tm_mon), p->tm_mday);
@@ -155,9 +164,9 @@ void print_transfers(PTRANSFER_NODE node){
 		printf("NULL\n");
 		return;
 	}
-	printf("from_account, to_account, setting_date, starting_date, ending_date\n");
+	printf("FROM_ACCOUNT, TO_ACCOUNT, SETTING_DATE, STARTING_DATE, ENDING_DATE\n");
 	while (NULL != node){
-		print_transfer(node);
+		print_transfer(node, FALSE);
 		node = node->next;
 	}
 }
@@ -167,8 +176,8 @@ void print_account(PACCOUNT_NODE node){
 		printf("NULL\n");
 		return;
 	}	
-	printf("id, state, balance, loans_num\n");
-	printf("%ld, ", node->info.id);
+	printf("ID, STATE, BALANCE, LOANS_NUM\n");
+	printf("%llu, ", node->info.id);
 	printf("%s, ", account_state[node->info.state]);
 	printf("%.2f, ", node->info.balance);
 	printf("%d\n", node->info.loans_num);
@@ -196,7 +205,8 @@ void print_customer(PCUSTOMER_NODE node){
 		printf("NULL\n");
 		return;
 	}
-	printf("%ld, ", node->info.id);
+	printf("ID, TYPE, NAME, ADDRESS, PHONE_NUMBER, STATE, ACCOUNTS_NUM\n");
+	printf("%llu, ", node->info.id);
 	printf("%s, ", customer_type[node->info.type]);
 	printf("%s, ", node->info.name);
 	printf("%s, ", node->info.address);
@@ -212,7 +222,6 @@ void print_customers(PCUSTOMER_NODE node){
 		printf("NULL\n");
 		return;
 	}
-	printf("id, type, name, address, phone_number, state, accounts_num\n");
 	while (NULL != node){
 		print_customer(node);
 		node = node->next;
@@ -230,7 +239,7 @@ PCUSTOMER_NODE FindById_Customer(PCUSTOMER_NODE node, u64 id){
 }
 
 PACCOUNT_NODE FindById_Account(PCUSTOMER_NODE node, u64 id){
-	PCUSTOMER_NODE customer = FindById_Customer(node, id/MAX_ACCOUNT_NUM*MAX_ACCOUNT_NUM);
+	PCUSTOMER_NODE customer = FindById_Customer(node, id/(MAX_ACCOUNT_NUM+1)*(MAX_ACCOUNT_NUM+1));
 	if (NULL == customer){
 		return NULL;
 	}
@@ -281,7 +290,7 @@ void free_all(PCUSTOMER_HEAD head){
 }
 
 BOOL DelById_Account(PCUSTOMER_NODE node, u64 id){
-	PCUSTOMER_NODE customer = FindById_Customer(node, id/MAX_ACCOUNT_NUM*MAX_ACCOUNT_NUM);
+	PCUSTOMER_NODE customer = FindById_Customer(node, id / (MAX_ACCOUNT_NUM + 1)*(MAX_ACCOUNT_NUM + 1));
 	if (NULL == customer){
 		return FALSE;
 	}

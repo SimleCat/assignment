@@ -13,11 +13,11 @@ BOOL InsertFromHead_Loan(PCUSTOMER_HEAD head, PACCOUNT_NODE account, PLOAN_NODE 
 BOOL InsertFromHead_Record(PACCOUNT_NODE account, PRECORD_NODE node);
 BOOL InsertFromHead_Transfer(PACCOUNT_NODE account, PTRANSFER_NODE node);
 
-void print_loan(PLOAN_NODE node);
+void print_loan(PLOAN_NODE node, BOOL title);
 void print_loans(PLOAN_NODE node);
-void print_record(PRECORD_NODE node);
+void print_record(PRECORD_NODE node, BOOL title);
 void print_records(PRECORD_NODE node);
-void print_transfer(PTRANSFER_NODE node);
+void print_transfer(PTRANSFER_NODE node, BOOL title);
 void print_transfers(PTRANSFER_NODE node);
 void print_account(PACCOUNT_NODE node);
 void print_accounts(PACCOUNT_NODE node);

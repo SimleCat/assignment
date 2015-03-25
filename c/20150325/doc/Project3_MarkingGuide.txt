@@ -1,0 +1,58 @@
+CMPT 300 Coding Project 3 Marking Guide
+
+Assignment must be done individually.
+
+Total =  [75] marks.
+
+[35] Program Execution and Threads
+    - Launch correct number of factory and kid threads.
+    - Correct operation of factory and kid threads.
+    - Correctly signal factories to exit.
+    - Correctly wait on candy in buffer.
+    - Correctly cancel kids.
+    Suggested Penalties start at ~5 marks.
+
+[10] Bounded Buffer and Synchronization
+    - Correct operation and synchronization of bounded buffer.
+    - Any race condition or synchronization problem likely leads to grade of 0 here.
+
+[10] Statistics
+    - Correctly formatted table
+    - Correctly accumulated data
+
+[10] Correct Memory Access
+    - No incorrect memory accesses (buffer overflow, ...)
+    - No memory leaks; all memory freed at exit
+      (except any "still reachable" allocations from pthread library).
+    - Will be tested with valgrind
+    Suggested penalties start at ~5 marks.
+
+[5] File structure
+    - Spilt into at least 3 C files
+    - Clean interface to C modules
+      (may not be checked in detail, but can lose marks for poor interface).
+    - Makefile builds project correctly.
+
+[5] Good code quality
+    - Check for non-positive arguments
+    - Near perefct indentation and great code structure.
+    - Code which does not compile will receive 0 marks total.
+    - Reasonable names for variables and functions.
+
+
+Suggested test cases:
+    1 factory, 10 kids, 10 seconds:
+    - Should generate very low delays.
+
+    10 factories, 1 kid, 10 seconds:
+    - Should generate large delays and extra candy in buffer to clear before ending kid thread.
+
+    20 factories, 20 kids, 15 seconds:
+    - Many threads operating
+
+    All tests run with Valgrind:
+    valgrind --leak-check=full --show-leak-kinds=all --num-callers=20 ./candykids 8 1 1
+
+
+Forward to Dr. Fraser if...
+- Material is suspiciously similar to another submission or code posted online.

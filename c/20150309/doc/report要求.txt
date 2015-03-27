@@ -1,0 +1,44 @@
+2. Part II: 
+a detailed explanation of the software development process you have
+followed (i.e., the first five steps of the software development method):
+o Problem specification: formulation of the problem and its objectives.
+o Analysis: identification of inputs, outputs and other relevant aspects,
+requirements or constraints (e.g., relevant formulas, etc.).
+o Design: formulation of the algorithm (list of steps) needed to solve the
+problem. At this stage, the problem should be divided into a number of sub-
+problems that can be solved using functions.
+o Implementation: list of functions used in the program (function names),
+indicating for each function which algorithm step(s) is/are implemented by the
+function.
+o Testing and verification: explanation of how the program was tested and
+verified. Snapshots of the program’s output window can be obtained by using
+[Alt] + [PrtScr(or PrintScreen)] and then pasted into the report.
+
+软件开发的详细说明
+1 问题说明：问题的构想与目标。
+2 分析：确定输入、输出和其他相关方面，需求或约束（如：相关的公式等）。
+3 设计：解决问题的算法构想（步骤列表）。在这一阶段，应该将问题分解成一些能够用函数解决的子问题。
+4 实现：程序里使用的函数列表，说明每个函数算法步骤的实现。
+5 测试和验证：说明程序怎么测试和验证，截图贴到报告里。
+
+1 问题说明：问题的构想与目标。
+问题分析：
+问题的构想与目标：
+提供一个简单的交互式界面，使用者通过简单的操作完成银行的相关信息处理，
+并且可以把银行数据信息固化到本地，再次打开软件时把数据从本地中读出。
+
+2 分析：确定输入、输出和其他相关方面，需求或约束（如：相关的公式等）。
+使用终端完成交互式界面的设计。
+获取键盘输入的数据和在终端显示信息完成与使用者的交互。
+数据信息固化到本地使用文件保存。
+
+3 设计：解决问题的算法构想（步骤列表）。在这一阶段，应该将问题分解成一些能够用函数解决的子问题。
+开始
+
+从文件读取银行数据信息
+
+提供显示界面与使用者交互
+
+把银行数据信息存入本地文件
+
+退出

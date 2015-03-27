@@ -50,7 +50,13 @@ BOOL WriteToFile(PCUSTOMER_HEAD head){
 	FILE *fp_loan = fopen(FILE_LOAN, "wb");
 	FILE *fp_record = fopen(FILE_RECORD, "wb");
 	FILE *fp_transfer = fopen(FILE_TRANSFER, "wb");
-	
+	if (NULL == fp_customer || NULL == fp_account || NULL == fp_loan \
+		|| NULL == fp_record || NULL == fp_transfer){
+		printf("Cannot create some files!\n");
+		return FALSE;
+	}
+
+
 	PCUSTOMER_NODE customer = head->customers;
 	while (NULL != customer){
 		// printf("Write customer\n");
@@ -132,13 +138,14 @@ BOOL ReadFromFile_Accounts(PCUSTOMER_HEAD head, FILE *fp){
 	PCUSTOMER_NODE customer = NULL;
 	PACCOUNT_NODE node = NULL;
 	while (!feof(fp)){
-		printf("read Accounts\n");
+		// printf("read Accounts\n");
 		node = (PACCOUNT_NODE) Create_List(LIST_ACCOUNT);
 		if (fread(node, sizeof(ACCOUNT_INFO), 1, fp)){
 			customer = FindById_Customer(head->customers, node->info.customer_id);
 			if (NULL != customer){
+				node->info.loans_num = 0;
 				InsertFromHead_Account(head, customer, node);
-				printf("Insert Account\n");
+				// printf("Insert Account\n");
 			}else{
 				printf("The data of account is invalid!\n");
 			}
@@ -153,11 +160,11 @@ BOOL ReadFromFile_Accounts(PCUSTOMER_HEAD head, FILE *fp){
 BOOL ReadFromFile_Customers(PCUSTOMER_HEAD head, FILE *fp){
 	PCUSTOMER_NODE node = NULL;
 	while (!feof(fp)){
-		printf("read Customers\n");
+		// printf("read Customers\n");
 		node = (PCUSTOMER_NODE) Create_List(LIST_CUSTOMER);
 		if (fread(node, sizeof(CUSTOMER_INFO), 1, fp)){
 			InsertFromHead_Customer(head, node);
-			printf("Insert Customer\n");
+			// printf("Insert Customer\n");
 		}else{
 			free(node);
 			break;

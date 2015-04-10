@@ -1,0 +1,296 @@
+From 98a636661d0d3b258024df8c361662b4c7a86f30 Mon Sep 17 00:00:00 2001
+From: lifenglong <lifenglong@pset.suntec.net>
+Date: Thu, 9 Apr 2015 15:40:48 +0800
+Subject: [PATCH 1/2] Add Simple 'hello-world' Sys-Call.
+
+---
+ Makefile                         |  2 +-
+ arch/x86/syscalls/syscall_64.tbl |  1 +
+ cs300/Makefile                   |  1 +
+ cs300/cs300_test.c               | 16 ++++++++++++++++
+ 4 files changed, 19 insertions(+), 1 deletion(-)
+ create mode 100644 cs300/Makefile
+ create mode 100644 cs300/cs300_test.c
+
+diff --git a/Makefile b/Makefile
+index 9591325..e9a1ee6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -733,7 +733,7 @@ export mod_sign_cmd
+ 
+ 
+ ifeq ($(KBUILD_EXTMOD),)
+-core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
++core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/ cs300/
+ 
+ vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
+diff --git a/arch/x86/syscalls/syscall_64.tbl b/arch/x86/syscalls/syscall_64.tbl
+index 38ae65d..bd4bb1d 100644
+--- a/arch/x86/syscalls/syscall_64.tbl
++++ b/arch/x86/syscalls/syscall_64.tbl
+@@ -320,6 +320,7 @@
+ 311	64	process_vm_writev	sys_process_vm_writev
+ 312	common	kcmp			sys_kcmp
+ 313	common	finit_module		sys_finit_module
++330	common	cs300_test		sys_cs300_test
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact
+diff --git a/cs300/Makefile b/cs300/Makefile
+new file mode 100644
+index 0000000..3b5bbb1
+--- /dev/null
++++ b/cs300/Makefile
+@@ -0,0 +1 @@
++obj-y := cs300_test.o
+\ No newline at end of file
+diff --git a/cs300/cs300_test.c b/cs300/cs300_test.c
+new file mode 100644
+index 0000000..81054ea
+--- /dev/null
++++ b/cs300/cs300_test.c
+@@ -0,0 +1,16 @@
++#include <linux/kernel.h>
++
++// Implement a HelloWorld system call
++// Argument is passed from call in user space.
++
++asmlinkage long sys_cs300_test(int argument){
++	long result = 0;
++
++	printk("Hello World!\n");
++	printk("--syscall argument %d\n", argument);
++
++	result = argument + 1;
++	printk("--returning %d +1 = %ld\n", argument, result);
++
++	return result;
++}
+-- 
+1.9.1
+
+
+From a1026c308340dcac72e78aaea58b387f5e18de5b Mon Sep 17 00:00:00 2001
+From: lifenglong <lifenglong@pset.suntec.net>
+Date: Fri, 10 Apr 2015 18:28:17 +0800
+Subject: [PATCH 2/2] Add 'array_stats' syscall and 'process_ancestor' syscall
+
+---
+ arch/x86/syscalls/syscall_64.tbl |  2 +
+ cs300/Makefile                   |  2 +-
+ cs300/array_stats.c              | 44 ++++++++++++++++++++++
+ cs300/array_stats.h              | 11 ++++++
+ cs300/process_ancestors.c        | 81 ++++++++++++++++++++++++++++++++++++++++
+ cs300/process_ancestors.h        | 17 +++++++++
+ 6 files changed, 156 insertions(+), 1 deletion(-)
+ create mode 100644 cs300/array_stats.c
+ create mode 100644 cs300/array_stats.h
+ create mode 100644 cs300/process_ancestors.c
+ create mode 100644 cs300/process_ancestors.h
+
+diff --git a/arch/x86/syscalls/syscall_64.tbl b/arch/x86/syscalls/syscall_64.tbl
+index bd4bb1d..b67a8f8 100644
+--- a/arch/x86/syscalls/syscall_64.tbl
++++ b/arch/x86/syscalls/syscall_64.tbl
+@@ -321,6 +321,8 @@
+ 312	common	kcmp			sys_kcmp
+ 313	common	finit_module		sys_finit_module
+ 330	common	cs300_test		sys_cs300_test
++331	common	array_stats		sys_array_stats
++332	common	process_ancestors	sys_process_ancestors
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact
+diff --git a/cs300/Makefile b/cs300/Makefile
+index 3b5bbb1..4dd182c 100644
+--- a/cs300/Makefile
++++ b/cs300/Makefile
+@@ -1 +1 @@
+-obj-y := cs300_test.o
+\ No newline at end of file
++obj-y := cs300_test.o array_stats.o process_ancestors.o
+diff --git a/cs300/array_stats.c b/cs300/array_stats.c
+new file mode 100644
+index 0000000..bacb9e7
+--- /dev/null
++++ b/cs300/array_stats.c
+@@ -0,0 +1,44 @@
++#include "array_stats.h"
++#include <linux/uaccess.h>
++#include <linux/kernel.h>
++
++asmlinkage long sys_array_stats(
++					struct array_stats *stats,
++					long data[],
++					long size){
++	struct array_stats _stats;
++	long _data;
++	long i = 0;
++
++	// printk("Line: 12\n");
++	if (size <= 0){
++		return -EINVAL;
++	}
++	// printk("Line: 16\n");
++	if (copy_from_user(&_data, data, sizeof(long)) != 0){
++		return -EFAULT;
++	}
++	// printk("_data[%ld] = %ld; size = %ld\n", i, _data, size);
++	_stats.min = _data;
++	_stats.max = _data;
++	_stats.sum = _data;
++	for (i=1; i<size; i++){
++		if (copy_from_user(&_data, data+i, sizeof(long)) != 0){
++			return -EFAULT;
++		}
++		if (_stats.min > _data){
++			_stats.min = _data;
++		}
++		if (_stats.max < _data){
++			_stats.max = _data;
++		}
++		_stats.sum += _data;
++		// printk("_data[%ld] = %ld\n", i, _data);
++	}
++
++	if (copy_to_user(stats, &_stats, sizeof(struct array_stats)) != 0){
++		return -EFAULT;
++	}
++
++	return 0;
++}
+\ No newline at end of file
+diff --git a/cs300/array_stats.h b/cs300/array_stats.h
+new file mode 100644
+index 0000000..f1a54dd
+--- /dev/null
++++ b/cs300/array_stats.h
+@@ -0,0 +1,11 @@
++// Define the array_stats struct for the array_stats sys-call.
++#ifndef _ARRAY_STATS_H_
++#define _ARRAY_STATS_H_
++
++struct array_stats{
++	long min;
++	long max;
++	long sum;
++};
++
++#endif
+\ No newline at end of file
+diff --git a/cs300/process_ancestors.c b/cs300/process_ancestors.c
+new file mode 100644
+index 0000000..1a7dc26
+--- /dev/null
++++ b/cs300/process_ancestors.c
+@@ -0,0 +1,81 @@
++#include "process_ancestors.h"
++#include <linux/uaccess.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/list.h>
++
++void fillProcessInfo(struct process_info *info, struct task_struct *task){
++	struct list_head *head = NULL;
++	long num = 0;
++	// struct task_struct *task_tmp;
++
++	info->pid = task->pid;
++	for (num = 0; num < ANCESTOR_NAME_LEN; num ++){
++		(info->name)[num] = (task->comm)[num];
++		if ((info->name)[num] == '\0'){
++			break;
++		}
++	}
++	info->state = task->state;
++	info->uid = task->cred->uid;
++	info->nvcsw = task->nvcsw;
++	info->nivcsw = task->nivcsw;
++
++	num = 0;
++	// printk("Current PID: %ld\n", task->pid);
++	list_for_each(head,&(task->children)){
++		// task_tmp = list_entry(head, struct task_struct, sibling);
++		// printk("children PID: %ld\n", task_tmp->pid);
++		num++;
++	}
++	info->num_children = num;
++
++	num = 0;
++	// printk("Current PID: %ld\n", task->pid);
++	list_for_each(head,&(task->sibling)){
++		// task_tmp = list_entry(head, struct task_struct, sibling);
++		// printk("children PID: %ld\n", task_tmp->pid);
++		num++;
++	}
++	info->num_siblings = num;	
++}
++
++asmlinkage long sys_process_ancestors(
++					struct process_info info_array[],
++					long size,
++					long *num_filled){
++	struct process_info info;
++	struct task_struct *cur_tesk = current;
++	long i;
++	long num;
++
++	// printk("size = %ld\n", size);
++
++	if (size <= 0){
++		return -EINVAL;
++	}
++	// printk("pid=%ld; name=%s; state=%ld; uid=%ld; nvcsw=%ld; nivcsw=%ld\n", cur_tesk->pid, \
++	// 	cur_tesk->comm, cur_tesk->state, cur_tesk->cred->uid, cur_tesk->nvcsw, cur_tesk->nivcsw);
++
++	fillProcessInfo(&info, cur_tesk);
++	if (copy_to_user(info_array, &info, sizeof(struct process_info)) != 0){
++		return -EFAULT;
++	}
++	num = 1;
++	for (i = 1; i < size && cur_tesk->parent != cur_tesk; ++ i){
++		cur_tesk = cur_tesk->parent;
++		fillProcessInfo(&info, cur_tesk);
++		if (copy_to_user(info_array+i, &info, sizeof(struct process_info)) != 0){
++			return -EFAULT;
++		}
++		// printk("pid=%ld; name=%s; state=%ld; uid=%ld; nvcsw=%ld; nivcsw=%ld\n", cur_tesk->pid, \
++		// 	cur_tesk->comm, cur_tesk->state, cur_tesk->cred->uid, cur_tesk->nvcsw, cur_tesk->nivcsw);
++		num ++;
++	} 
++
++	if (copy_to_user(num_filled, &num, sizeof(long)) != 0){
++		return -EFAULT;
++	}
++
++	return 0;
++}
+\ No newline at end of file
+diff --git a/cs300/process_ancestors.h b/cs300/process_ancestors.h
+new file mode 100644
+index 0000000..ebba115
+--- /dev/null
++++ b/cs300/process_ancestors.h
+@@ -0,0 +1,17 @@
++// Structure to hold values returned by process_ancestors sys-call
++#ifndef _PROCESS_ANCESORS_H_
++#define _PROCESS_ANCESORS_H_
++
++#define ANCESTOR_NAME_LEN	16
++struct process_info {
++	long pid;						/* Process ID */
++	char name[ANCESTOR_NAME_LEN];	/* Program name of process */
++	long state;						/* Current process state */
++	long uid;						/* User ID of process owner */
++	long nvcsw;						/* # voluntary context switches */
++	long nivcsw;					/* # involuntary context switches */
++	long num_children;				/* # children process has */
++	long num_siblings;				/* # sibling process has */
++};
++
++#endif
+\ No newline at end of file
+-- 
+1.9.1
+
